@@ -274,7 +274,7 @@ jobs:
         name: ZAP Scan
         run: |
           mkdir -p logs/
-          sudo docker run --net=default_network -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/owasp.log || true
+          sudo docker run --net=internal -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/owasp.log || true
           
       - 
         uses: actions/upload-artifact@v3
