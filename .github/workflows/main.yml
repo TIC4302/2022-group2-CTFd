@@ -125,7 +125,7 @@ jobs:
         name: Build docker-compose
         run: docker-compose -f docker-compose.yml up --build -d
 
-  ContainerScan:
+  ContainerDockleScan:
     needs: [Build]
     runs-on: ubuntu-latest
     steps:
@@ -170,10 +170,65 @@ jobs:
         if: always()
         with:
           name: Dockle Report
-          path: dockle-report-redis.json        
+          path: dockle-report-redis.json              
+
+  ContainerTrivyScan:
+    needs: [Build]
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Trivy Scan for Nginx
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: nginx:latest #nginx:1.17
+          format: json
+          ignore-unfixed: true
+          vuln-type: os,library
+          output: trivy-report-nginx.json
+      - 
+        name: Upload Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: Trivy Scan Report
+          path: trivy-report-nginx.json
+      -
+        name: Trivy Scan for MariaDB
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: mariadb:latest #mariadb:10.4.12
+          format: json
+          ignore-unfixed: true
+          vuln-type: os,library
+          output: trivy-report-mariadb.json
+          #severity: 'CRITICAL,HIGH'
+      - 
+        name: Upload Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: Trivy Scan Report
+          path: trivy-report-mariadb.json
+      -
+        name: Trivy Scan for Redis
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: redis:latest #redis:4
+          format: json
+          ignore-unfixed: true
+          vuln-type: os,library
+          output: trivy-report-redis.json
+          #severity: 'CRITICAL,HIGH'
+      - 
+        name: Upload Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: Trivy Scan Report
+          path: trivy-report-redis.json 
 
   Deployment:
-    needs: [ContainerScan]
+    needs: [ContainerDockleScan, ContainerTrivyScan]
     runs-on: ubuntu-latest
     steps:
       -  
@@ -202,24 +257,24 @@ jobs:
           push: true
           tags: tic4302group2/tic4302-project:latest
 
-  ZAP:
-    needs: [Deployment]
-    runs-on: ubuntu-latest
-    steps:
-      - 
-        name: Checkout
-        uses: actions/checkout@v2  
-      -
-        name: Install dependencies
-        run: pip install -r requirements.txt
-      - 
-        name: Build Image for testing
-        run: docker-compose -f docker-compose.yml up --build -d
-      - 
-        name: ZAP Scan
-        uses: zaproxy/action-baseline@v0.6.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          docker_name: 'owasp/zap2docker-stable'
-          target: 'http://localhost:8000'
-          cmd_options: '-a' 
+  # ZAP:
+  #   needs: [Deployment]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - 
+  #       name: Checkout
+  #       uses: actions/checkout@v2  
+  #     -
+  #       name: Install dependencies
+  #       run: pip install -r requirements.txt
+  #     - 
+  #       name: Build Image for testing
+  #       run: docker-compose -f docker-compose.yml up --build -d
+  #     - 
+  #       name: ZAP Scan
+  #       uses: zaproxy/action-baseline@v0.6.1
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         docker_name: 'owasp/zap2docker-stable'
+  #         target: 'http://localhost:8000'
+  #         cmd_options: '-a' 
