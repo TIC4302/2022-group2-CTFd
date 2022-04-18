@@ -1,6 +1,6 @@
 from flask import session
 from wtforms import PasswordField, SelectField, StringField
-from wtforms.fields.html5 import DateField, URLField
+from wtforms.fields import DateField, URLField
 
 from CTFd.forms import BaseForm
 from CTFd.forms.fields import SubmitField
