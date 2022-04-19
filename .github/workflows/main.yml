@@ -274,13 +274,14 @@ jobs:
         name: ZAP Scan
         run: |
           mkdir -p logs/
-          sudo docker run --net=default_network -t owasp/zap2docker-stable zap-baseline.py -t http://nginx:80/ > logs/owasp.log || true
+          sudo docker run --rm owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/ZAP.log || true
+        # sudo docker run --net=default_network -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/owasp.log || true
           
       - 
         uses: actions/upload-artifact@v3
         with:
-             name: owaspzap
-             path: logs/owasp.log  
+             name: ZAP Scan Report
+             path: logs/ZAP.log  
       # - 
       #   name: ZAP Scan
       #   uses: zaproxy/action-baseline@v0.6.1
