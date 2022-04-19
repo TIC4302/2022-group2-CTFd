@@ -274,7 +274,7 @@ jobs:
         name: ZAP Scan
         run: |
           mkdir -p logs/
-          sudo docker run --rm owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/ZAP.log || true
+          sudo docker run owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/ZAP.log || true
         # sudo docker run --net=default_network -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/owasp.log || true
           
       - 
