@@ -36,6 +36,8 @@ services:
       - 80:80
     depends_on:
       - ctfd
+    networks:
+      - default
 
   db:
     image: mariadb:10.4.12
