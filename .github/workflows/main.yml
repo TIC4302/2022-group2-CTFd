@@ -290,4 +290,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
              name: ZAP Scan Report
-             path: logs/ZAP.log 
+             path: logs/ZAP.log  
