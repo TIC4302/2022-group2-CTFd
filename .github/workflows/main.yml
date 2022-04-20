@@ -134,7 +134,7 @@ jobs:
         name: Dockle for Nginx
         uses: erzz/dockle-action@v1.1.1
         with:
-          image: nginx:1.17
+          image: nginx:stable
           report-format: json
           report-name: dockle-scan-nginx
       - 
@@ -178,7 +178,7 @@ jobs:
         name: Trivy Scan for Nginx
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: nginx:1.17
+          image-ref: nginx:stable
           format: json
           ignore-unfixed: true
           vuln-type: os,library

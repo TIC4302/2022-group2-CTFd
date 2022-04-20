@@ -34,10 +34,6 @@ RUN adduser \
 RUN chmod +x /opt/CTFd/docker-entrypoint.sh \
     && chown -R 1001:1001 /opt/CTFd /var/log/CTFd /var/uploads
 
-# Fix for Dockle Scan: CIS-DI-0001
-RUN useradd -d /home/dockle -m -s /bin/bash dockle
-USER dockle
-
-# USER 1001
+USER 1001
 EXPOSE 8000
 ENTRYPOINT ["/opt/CTFd/docker-entrypoint.sh"]
