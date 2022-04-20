@@ -25,10 +25,6 @@ RUN for d in CTFd/plugins/*; do \
         fi; \
     done;
 
-# Fix for Dockle Scan: CIS-DI-0001
-RUN useradd -d /home/dockle -m -s /bin/bash dockle
-USER dockle
-
 RUN adduser \
     --disabled-login \
     -u 1001 \
@@ -38,6 +34,10 @@ RUN adduser \
 RUN chmod +x /opt/CTFd/docker-entrypoint.sh \
     && chown -R 1001:1001 /opt/CTFd /var/log/CTFd /var/uploads
 
-USER 1001
+# Fix for Dockle Scan: CIS-DI-0001
+RUN useradd -d /home/dockle -m -s /bin/bash dockle
+USER dockle
+
+# USER 1001
 EXPOSE 8000
 ENTRYPOINT ["/opt/CTFd/docker-entrypoint.sh"]
