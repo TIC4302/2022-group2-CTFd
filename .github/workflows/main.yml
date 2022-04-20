@@ -270,22 +270,22 @@ jobs:
       -
         name: Install dependencies
         run: pip install -r requirements.txt
+      # - 
+      #   name: ZAP Scan
+      #   run: |
+      #     mkdir -p logs/
+        #  sudo docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/ZAP.log || true
+        #  sudo docker run --net=default_network -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/owasp.log || true
       - 
         name: ZAP Scan
-        run: |
-          mkdir -p logs/
-          sudo docker run owasp/zap2docker-stable zap-baseline.py -t http://10.9.8.7:8000/ > logs/ZAP.log || true
-        # sudo docker run --net=default_network -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/owasp.log || true
+        uses: zaproxy/action-baseline@v0.6.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          docker_name: 'owasp/zap2docker-stable'
+          target: 'http://localhost:8000/'
+          cmd_options: '-a'
       - 
         uses: actions/upload-artifact@v3
         with:
              name: ZAP Scan Report
-             path: logs/ZAP.log  
-      # - 
-      #   name: ZAP Scan
-      #   uses: zaproxy/action-baseline@v0.6.1
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     docker_name: 'owasp/zap2docker-stable'
-      #     target: 'http://localhost:8000'
-      #     cmd_options: '-a' 
+             path: logs/ZAP.log 
