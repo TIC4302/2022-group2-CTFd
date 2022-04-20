@@ -25,6 +25,10 @@ RUN for d in CTFd/plugins/*; do \
         fi; \
     done;
 
+# Fix for Dockle Scan: CIS-DI-0001
+RUN useradd -d /home/dockle -m -s /bin/bash dockle
+USER dockle
+
 RUN adduser \
     --disabled-login \
     -u 1001 \

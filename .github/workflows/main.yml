@@ -136,42 +136,42 @@ jobs:
         with:
           image: nginx:1.17
           report-format: json
-          report-name: dockle-report-nginx
+          report-name: dockle-scan-nginx
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Dockle Scan Report
-          path: dockle-report-nginx.json
+          name: Container Scan
+          path: dockle-scan-nginx.json
       - 
         name: Dockle for MariaDB
         uses: erzz/dockle-action@v1.1.1
         with:
           image: mariadb:10.4.12
           report-format: json
-          report-name: dockle-report-mariadb
+          report-name: dockle-scan-mariadb
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Dockle Scan Report
-          path: dockle-report-mariadb.json
+          name: Container Scan
+          path: dockle-scan-mariadb.json
       - 
         name: Dockle for Redis
         uses: erzz/dockle-action@v1.1.1
         with:
           image: redis:4
           report-format: json
-          report-name: dockle-report-redis      
+          report-name: dockle-scan-redis      
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Dockle Scan Report
-          path: dockle-report-redis.json  
+          name: Container Scan
+          path: dockle-scan-redis.json  
 
       ## Trivy Scan ##    
       -
@@ -182,15 +182,15 @@ jobs:
           format: json
           ignore-unfixed: true
           vuln-type: os,library
-          output: trivy-report-nginx.json
+          output: trivy-scan-nginx.json
           severity: 'CRITICAL,HIGH'
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Trivy Scan Report
-          path: trivy-report-nginx.json
+          name: Container Scan
+          path: trivy-scan-nginx.json
       -
         name: Trivy Scan for MariaDB
         uses: aquasecurity/trivy-action@master
@@ -199,15 +199,15 @@ jobs:
           format: json
           ignore-unfixed: true
           vuln-type: os,library
-          output: trivy-report-mariadb.json
+          output: trivy-scan-mariadb.json
           severity: 'CRITICAL,HIGH'
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Trivy Scan Report
-          path: trivy-report-mariadb.json
+          name: Container Scan
+          path: trivy-scan-mariadb.json
       -
         name: Trivy Scan for Redis
         uses: aquasecurity/trivy-action@master
@@ -216,15 +216,15 @@ jobs:
           format: json
           ignore-unfixed: true
           vuln-type: os,library
-          output: trivy-report-redis.json
+          output: trivy-scan-redis.json
           severity: 'CRITICAL,HIGH'
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Trivy Scan Report
-          path: trivy-report-redis.json 
+          name: Container Scan
+          path: trivy-scan-redis.json 
 
   Deployment:
     needs: [ContainerScan, ]
