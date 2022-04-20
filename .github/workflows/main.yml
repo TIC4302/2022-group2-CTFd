@@ -135,6 +135,7 @@ jobs:
         uses: erzz/dockle-action@v1.1.1
         with:
           image: nginx:stable
+          failure-threshold: FATAL
           report-format: json
           report-name: dockle-scan-nginx
       - 
@@ -149,6 +150,7 @@ jobs:
         uses: erzz/dockle-action@v1.1.1
         with:
           image: mariadb:10.4.12
+          failure-threshold: FATAL
           report-format: json
           report-name: dockle-scan-mariadb
       - 
@@ -163,6 +165,7 @@ jobs:
         uses: erzz/dockle-action@v1.1.1
         with:
           image: redis:4
+          failure-threshold: FATAL
           report-format: json
           report-name: dockle-scan-redis      
       - 
