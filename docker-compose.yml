@@ -23,7 +23,7 @@ services:
     depends_on:
       - db
     networks:
-      - default
+      - project
 #         default:
 #         internal:
 
@@ -37,7 +37,7 @@ services:
     depends_on:
       - ctfd
     networks:
-      - default
+      - project
 
   db:
     image: mariadb:10.4.12
@@ -50,7 +50,7 @@ services:
     volumes:
       - .data/mysql:/var/lib/mysql
     networks:
-      - default
+      - project
 #         internal:
     # This command is required to set important mariadb defaults
     command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --wait_timeout=28800, --log-warnings=0]
@@ -61,11 +61,10 @@ services:
     volumes:
     - .data/redis:/data
     networks:
-      - default   
-        #internal:
+      - project   
+#        internal:
 
 networks:
-    default:
-      name: default_network
+    project:
 #     internal:
 #         internal: true
