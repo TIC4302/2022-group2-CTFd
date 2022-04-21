@@ -49,7 +49,7 @@ jobs:
         name: Install Safety    
         run: pip install safety
       - 
-        name: Create logs file
+        name: Create logs folder
         run: mkdir -p logs/
       - 
         name: Run Safety Check
@@ -58,7 +58,7 @@ jobs:
         name: Upload logs  
         uses: actions/upload-artifact@v2
         with:
-          name: logs
+          name: PythonSafety
           path: logs/safety-logs.txt
 
   # Pyraider:
@@ -96,20 +96,19 @@ jobs:
         uses: actions/checkout@v2
       - 
         name: Create logs file
-        run: |
-          mkdir -p logs/ 
+        run: mkdir -p logs/ 
       - 
         name: Run Bandit Check
         uses: jpetrucciani/bandit-check@master
         with:
           path: '.'
-          bandit_flags: '-lll -o logs/output.json -f json'
+          bandit_flags: '-lll -o logs/bandit.json -f json'
       - 
         name: Upload logs
         uses: actions/upload-artifact@v2
         with:
-          name: logs
-          path: logs/output.json
+          name: Bandit
+          path: logs/bandit.json
 
   Build:
     needs: [SecretScan, PythonSafety, BanditCheck]
@@ -276,7 +275,7 @@ jobs:
         name: ZAP Scan
         run: |
           mkdir -p logs/
-          sudo docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/ZAP.log || true
+          sudo docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:4000/ > logs/zap.log || true
         #  sudo docker run --net=default_network -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/owasp.log || true
       # - 
       #   name: ZAP Scan
@@ -289,5 +288,5 @@ jobs:
       - 
         uses: actions/upload-artifact@v3
         with:
-             name: ZAP Scan Report
-             path: logs/ZAP.log  
+             name: ZAP Scan
+             path: logs/zap.log  
