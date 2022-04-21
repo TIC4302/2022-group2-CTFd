@@ -229,7 +229,7 @@ jobs:
           path: trivy-scan-redis.json 
 
   Deployment:
-    needs: [ContainerScan, ]
+    needs: [ContainerScan]
     runs-on: ubuntu-latest
     steps:
       -  
@@ -275,7 +275,7 @@ jobs:
         name: ZAP Scan
         run: |
           mkdir -p logs/
-          sudo docker run -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:4000/ > logs/zap.log || true
+          sudo docker run --net=project -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/zap.log || true
         #  sudo docker run --net=default_network -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/owasp.log || true
       # - 
       #   name: ZAP Scan
