@@ -3,7 +3,7 @@ name: CTFd Main CI
 
 on:
   push:
-    branches: [master, sub]
+    branches: [sub-DY]
 
 env:
   DEP_PATH: requirements.txt
@@ -299,4 +299,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
              name: ZAP Scan
-             path: logs/zap.log  
+             path: logs/zap.log
