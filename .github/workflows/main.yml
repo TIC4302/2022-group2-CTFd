@@ -128,7 +128,32 @@ jobs:
     needs: [Build]
     runs-on: ubuntu-latest
     steps:
+      ## Build image for testing ##
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Install dependencies
+        run: pip install -r requirements.txt
+      -
+        name: Build docker-compose
+        run: docker-compose -f docker-compose.yml up --build -d
       ## Dockle Scan ##  
+      -
+        name: Dockle for ctfd
+        uses: erzz/dockle-action@v1.1.1
+        with:
+          image: ctfd
+          failure-threshold: WARN
+          report-format: json
+          report-name: dockle-scan-ctfd
+      -
+        name: Upload Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: Container Scan
+          path: dockle-scan-ctfd.json
       - 
         name: Dockle for Nginx
         uses: erzz/dockle-action@v1.1.1
@@ -175,7 +200,24 @@ jobs:
           name: Container Scan
           path: dockle-scan-redis.json  
 
-      ## Trivy Scan ##    
+      ## Trivy Scan ##   
+      -
+        name: Trivy Scan for ctfd
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ctfd
+          format: json
+          ignore-unfixed: true
+          vuln-type: os,library
+          output: trivy-scan-ctfd.json
+          severity: 'CRITICAL,HIGH' 
+      -
+        name: Upload Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: Container Scan
+          path: trivy-scan-ctfd.json
       -
         name: Trivy Scan for Nginx
         uses: aquasecurity/trivy-action@master
