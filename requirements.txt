@@ -159,12 +159,12 @@ urllib3==1.26.9
     # via
     #   botocore
     #   requests
-werkzeug==2.1.1
+werkzeug==1.0.1
     # via
     #   -r requirements.in
     #   flask
     #   flask-restx
-wtforms==2.3.1
+wtforms==3.0.1
     # via -r requirements.in
 zipp==3.7.0
     # via importlib-metadata

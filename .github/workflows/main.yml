@@ -9,16 +9,6 @@ env:
   DEP_PATH: requirements.txt
     
 jobs:
-  Build:
-    runs-on: ubuntu-latest
-    steps:
-      - 
-        name: Checkout
-        uses: actions/checkout@v2
-      - 
-        name: Build docker-compose
-        run: docker-compose -f docker-compose.yml up --build -d
-
   SecretScan:
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +49,7 @@ jobs:
         name: Install Safety    
         run: pip install safety
       - 
-        name: Create logs file
+        name: Create logs folder
         run: mkdir -p logs/
       - 
         name: Run Safety Check
@@ -68,156 +58,245 @@ jobs:
         name: Upload logs  
         uses: actions/upload-artifact@v2
         with:
-          name: logs
+          name: PythonSafety
           path: logs/safety-logs.txt
 
-  Pyraider:
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@master 
-      - 
-        name: Install Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: "3.7"
-      -
-        name: Install Pyraider
-        run: pip install pyraider  
-      -
-        name: Create logs file
-        run: mkdir -p logs/  
-      -
-        name: Run Pyraider Check
-        run: pyraider check -f requirements.txt -e json logs/pyraider-logs.json
-      -
-        name: Upload logs
-        uses: actions/upload-artifact@v2
-        with:
-          name: logs
-          path: logs/pyraider-logs.json
+  # Pyraider:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     -
+  #       name: Checkout
+  #       uses: actions/checkout@master 
+  #     - 
+  #       name: Install Python
+  #       uses: actions/setup-python@v1
+  #       with:
+  #         python-version: "3.7"
+  #     -
+  #       name: Install Pyraider
+  #       run: pip install pyraider  
+  #     -
+  #       name: Create logs file
+  #       run: mkdir -p logs/  
+  #     -
+  #       name: Run Pyraider Check
+  #       run: pyraider check -f requirements.txt -e json logs/pyraider-logs.json
+  #     -
+  #       name: Upload logs
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: logs
+  #         path: logs/pyraider-logs.json
           
   BanditCheck:
-    needs: [Build, PythonSafety]
     runs-on: ubuntu-latest
     steps:
       - 
+        name: Checkout
         uses: actions/checkout@v2
       - 
-        run: |
-          mkdir -p logs/ 
+        name: Create logs file
+        run: mkdir -p logs/ 
       - 
+        name: Run Bandit Check
         uses: jpetrucciani/bandit-check@master
         with:
           path: '.'
-          bandit_flags: '-lll -o logs/output.json -f json'
+          bandit_flags: '-lll -o logs/bandit.json -f json'
       - 
+        name: Upload logs
         uses: actions/upload-artifact@v2
         with:
-          name: logs
-          path: logs/output.json
+          name: Bandit
+          path: logs/bandit.json
 
-  #need to fix the 'WARN' on creating user for the container
-  ContainerDockleScan:
-    #needs: [test, sast]
+  Build:
+    needs: [SecretScan, PythonSafety, BanditCheck]
     runs-on: ubuntu-latest
     steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Install dependencies
+        run: pip install -r requirements.txt
+      - 
+        name: Build docker-compose
+        run: docker-compose -f docker-compose.yml up --build -d
+
+  ContainerScan:
+    needs: [Build]
+    runs-on: ubuntu-latest
+    steps:
+      ## Build image for testing ##
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Install dependencies
+        run: pip install -r requirements.txt
+      -
+        name: Build docker-compose
+        run: docker-compose -f docker-compose.yml up --build -d
+      ## Dockle Scan ##  
       - 
         name: Dockle for Nginx
         uses: erzz/dockle-action@v1.1.1
         with:
-          image: nginx:1.17
+          image: nginx:stable
+          failure-threshold: WARN
           report-format: json
-          report-name: dockle-report-nginx
+          report-name: dockle-scan-nginx
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Dockle Report
-          path: dockle-report-nginx.json
+          name: Container Scan
+          path: dockle-scan-nginx.json
       - 
         name: Dockle for MariaDB
         uses: erzz/dockle-action@v1.1.1
         with:
           image: mariadb:10.4.12
+          failure-threshold: WARN
           report-format: json
-          report-name: dockle-report-mariadb
+          report-name: dockle-scan-mariadb
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Dockle Report
-          path: dockle-report-mariadb.json
+          name: Container Scan
+          path: dockle-scan-mariadb.json
       - 
         name: Dockle for Redis
         uses: erzz/dockle-action@v1.1.1
         with:
           image: redis:4
+          failure-threshold: WARN
           report-format: json
-          report-name: dockle-report-redis      
+          report-name: dockle-scan-redis      
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Dockle Report
-          path: dockle-report-redis.json        
+          name: Container Scan
+          path: dockle-scan-redis.json  
 
-  ContainerTrivyScan:
-    #needs: [test, sast]
-    runs-on: ubuntu-latest
-    steps:
+      ## Trivy Scan ##   
       -
         name: Trivy Scan for Nginx
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: nginx:latest #nginx:1.17
+          image-ref: nginx:stable
           format: json
           ignore-unfixed: true
           vuln-type: os,library
-          output: trivy-report-nginx.json
+          output: trivy-scan-nginx.json
+          severity: 'CRITICAL,HIGH'
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Trivy Scan Report
-          path: trivy-report-nginx.json
+          name: Container Scan
+          path: trivy-scan-nginx.json
       -
         name: Trivy Scan for MariaDB
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: mariadb:latest #mariadb:10.4.12
+          image-ref: mariadb:10.4.12
           format: json
           ignore-unfixed: true
           vuln-type: os,library
-          output: trivy-report-mariadb.json
-          #severity: 'CRITICAL,HIGH'
+          output: trivy-scan-mariadb.json
+          severity: 'CRITICAL,HIGH'
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Trivy Scan Report
-          path: trivy-report-mariadb.json
+          name: Container Scan
+          path: trivy-scan-mariadb.json
       -
         name: Trivy Scan for Redis
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: redis:latest #redis:4
+          image-ref: redis:4
           format: json
           ignore-unfixed: true
           vuln-type: os,library
-          output: trivy-report-redis.json
-          #severity: 'CRITICAL,HIGH'
+          output: trivy-scan-redis.json
+          severity: 'CRITICAL,HIGH'
       - 
         name: Upload Report
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Trivy Scan Report
-          path: trivy-report-redis.json   
-          
+          name: Container Scan
+          path: trivy-scan-redis.json 
+
+  Deployment:
+    needs: [ContainerScan]
+    runs-on: ubuntu-latest
+    steps:
+      -  
+        name: Checkout
+        uses: actions/checkout@v2
+      - 
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - 
+        name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - 
+        name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: tic4302group2/tic4302-project:latest
+
+  ZAP:
+    #needs: [Deployment]
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v2  
+      - 
+        name: Build Image for testing
+        run: docker-compose -f docker-compose.yml up --build -d  
+      -
+        name: Install dependencies
+        run: pip install -r requirements.txt
+      - 
+        name: ZAP Scan
+        run: |
+          mkdir -p logs/
+          sudo docker run --net=project -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/zap.log || true
+        #  sudo docker run --net=default_network -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/owasp.log || true
+      # - 
+      #   name: ZAP Scan
+      #   uses: zaproxy/action-baseline@v0.6.1
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     docker_name: 'owasp/zap2docker-stable'
+      #     target: 'http://localhost:8000/'
+      #     cmd_options: '-a'
+      - 
+        uses: actions/upload-artifact@v3
+        with:
+             name: ZAP Scan
+             path: logs/zap.log
