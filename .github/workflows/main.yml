@@ -111,7 +111,7 @@ jobs:
           path: logs/bandit.json
 
   Build:
-    needs: [SecretScan, PythonSafety, BanditCheck]
+    needs: [SecretScan, PythonSafety, BanditCheck, Pyraider]
     runs-on: ubuntu-latest
     steps:
       - 
@@ -258,7 +258,7 @@ jobs:
           tags: tic4302group2/tic4302-project:latest
 
   ZAP:
-    #needs: [Deployment]
+    needs: [Deployment]
     runs-on: ubuntu-latest
     steps:
       - 
