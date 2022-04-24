@@ -1,6 +1,6 @@
 ## TIC4302 Information Security Practicum II Project
 
-Our group's project presentation desk is uploaded to the root folder and named as "TIC4302 Presentation.pptx"
+Our group's project presentation desk is uploaded to the root folder and named as "[TIC4302 Presentation.pptx](https://github.com/TIC4302/2022-group2-CTFd/blob/master/TIC4302%20Presentation.pptx)"
 
 # ![](https://github.com/CTFd/CTFd/blob/master/CTFd/themes/core/static/img/logo.png?raw=true)
 
