@@ -1,3 +1,7 @@
+## TIC4302 Information Security Practicum II Project
+
+Our group's project presentation desk is uploaded to the root folder and named as "TIC4302 Presentation.pptx"
+
 # ![](https://github.com/CTFd/CTFd/blob/master/CTFd/themes/core/static/img/logo.png?raw=true)
 
 ![CTFd MySQL CI](https://github.com/CTFd/CTFd/workflows/CTFd%20MySQL%20CI/badge.svg?branch=master)
