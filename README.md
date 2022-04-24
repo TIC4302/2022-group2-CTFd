@@ -2,7 +2,6 @@
 
 Our group's project presentation deck is uploaded to the root folder and named as "[TIC4302 Presentation.pptx](https://github.com/TIC4302/2022-group2-CTFd/blob/master/TIC4302%20Presentation.pptx)"
 
-
 # ![](https://github.com/CTFd/CTFd/blob/master/CTFd/themes/core/static/img/logo.png?raw=true)
 
 ![CTFd MySQL CI](https://github.com/CTFd/CTFd/workflows/CTFd%20MySQL%20CI/badge.svg?branch=master)

@@ -111,7 +111,7 @@ jobs:
           path: logs/bandit.json
 
   Build:
-    needs: [SecretScan, PythonSafety, BanditCheck, Pyraider]
+    needs: [SecretScan, PythonSafety, Pyraider, BanditCheck]
     runs-on: ubuntu-latest
     steps:
       - 
@@ -174,6 +174,7 @@ jobs:
         with:
           name: Container Scan
           path: dockle-scan-redis.json  
+
       ## Trivy Scan ##   
       -
         name: Trivy Scan for Nginx
@@ -275,7 +276,11 @@ jobs:
         run: |
           mkdir -p logs/
           sudo docker run --net=project -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/zap.log || true
-        #  sudo docker run --net=default_network -t owasp/zap2docker-stable zap-baseline.py -t http://localhost:8000/ > logs/owasp.log || true
+      - 
+        uses: actions/upload-artifact@v3
+        with:
+             name: ZAP Scan
+             path: logs/zap.log
       # - 
       #   name: ZAP Scan
       #   uses: zaproxy/action-baseline@v0.6.1
@@ -284,8 +289,3 @@ jobs:
       #     docker_name: 'owasp/zap2docker-stable'
       #     target: 'http://localhost:8000/'
       #     cmd_options: '-a'
-      - 
-        uses: actions/upload-artifact@v3
-        with:
-             name: ZAP Scan
-             path: logs/zap.log
